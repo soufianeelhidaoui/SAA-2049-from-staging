@@ -1,0 +1,146 @@
+{% extends '@SyliusShop/layout.html.twig' %}
+
+{% block title %}{{ 'sylius.ui.your_shopping_cart'|trans }}{% endblock %}
+
+{% block content %}
+    <checkout inline-template>
+        <div  class="t-cart t-cart--checkout">
+            <div class="site-wrap">
+                {% include '@SyliusShop/snippets/breadcrumb.html.twig' with { mod: 'checkout' } %}
+                {% if cart.item_count > 0 %}
+                    <div class="t-cart__dealer" v-if="!sent">
+                        <h1 class="t-cart__subtitle"><span>1.</span> <span>{{ 'cart.checkout.first_step' |  t({brand: settings.brand}) }}</span></h1>
+                        <div>
+                            <div class="t-cart__map">
+                                <div class="t-cart__map-wrapper">
+                                    <transition name="fade">
+                                        {% include '@SyliusShop/snippets/partner.html.twig' %}
+                                    </transition>
+                                    <gmap api-key="{{ settings.gmap_api }}" brand="{{ settings.theme }}" pin="{{ 'img/pin-'|append(settings.theme)|append('.svg') | asset_url }}" skra="{{ 'img/skra.svg' | asset_url }}" skdi="{{ 'img/skdi.svg' | asset_url }}" color="{{ settings.main_color }}" inline-template>
+                                        <div class="google-map">
+                                            <div class="t-cart__partners icon-magnifier">
+                                                <input type="text" placeholder="{{ 'cart.checkout.search_placeholder' |  t({brand: settings.brand}) }}" aria-label="{{ 'cart.checkout.search_placeholder' |  t({brand: settings.brand}) }}" ref="autocomplete">
+                                            </div>
+                                            <div class="google-map-inner" ref="googleMap"></div>
+                                        </div>
+                                    </gmap>
+                                </div>
+
+                                {% if settings.theme != 'skoda' %}
+                                    <transition name="fade">
+                                        <div v-if="partner" class="t-cart__map-later">
+                                            <div>
+                                                <p>2.</p>
+                                            </div>
+                                            <div>
+                                                <p><b>{{ 'cart.checkout.contact_later_title' |  t }}</b></p>
+                                                <p>{{ 'cart.checkout.contact_later_text' |  t }}</p>
+                                            </div>
+                                        </div>
+                                    </transition>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <form class="t-cart__lead" v-if="selected" @submit.prevent="send('{{ settings.theme }}')" ref="form">
+
+                            {% if settings.theme == 'skoda' %}
+                                <h2 class="t-cart__subtitle"><span>2.</span> <span>{{ 'cart.checkout.second_step' |  t }}</span></h2>
+                                <div class="field-group field-group--radio">
+                                    <a>{{ 'cart.checkout.civility' |  t }} : </a>
+                                    <label for="mme"><input type="radio" name="title" v-model="params.title" id="mme" value="mme">{{ 'cart.checkout.mrs' |  t }} <span class="checkmark"></span></label>
+                                    <label for="mr"><input type="radio" name="title" v-model="params.title" id="mr" value="mr">{{ 'cart.checkout.mr' |  t }} <span class="checkmark"></span></label>
+                                </div>
+
+                                <div class="field-group field-group--text">
+                                    <input type="text" name="firstname" v-focus v-model="params.first_name" ref="first_input" maxlength="40">
+                                    <label for="firstname">{{ 'cart.checkout.first_name' |  t }}</label>
+                                    <span class="input-error">{{ 'cart.checkout.error_generic' |  t }}</span>
+                                </div>
+
+                                <div class="field-group field-group--text">
+                                    <input type="text" name="lastname" v-focus v-model="params.last_name" maxlength="40">
+                                    <label for="lastname">{{ 'cart.checkout.last_name' |  t }}</label>
+                                    <span class="input-error">{{ 'cart.checkout.error_generic' |  t }}</span>
+                                </div>
+
+                                <div class="field-group field-group--text">
+                                    <input type="tel" pattern="[0-9+]+" v-match name="phone_number" v-focus v-model="params.phone_number" maxlength="13" minlength="10">
+                                    <label for="tel">{{ 'cart.checkout.telephone' |  t }}</label>
+                                    <span class="input-error">{{ 'cart.checkout.error_tel' |  t }}</span>
+                                </div>
+
+                                <div class="field-group field-group--text field-group--email">
+                                    <input type="text" pattern="[^@\s]+@[^@\s]+\.[^@\s]+" name="email" v-focus v-model="params.email" required maxlength="60" placeholder="email">
+                                    <label for="email">{{ 'cart.checkout.email' |  t }}*</label>
+                                    <span class="input-error">{{ 'cart.checkout.error_email' |  t }}</span>
+                                </div>
+
+                                <button type="submit" :class="{'button--loading':sending}" name="checkout">{{ 'cart.general.checkout' | t }} {{ settings.brand }}</button>
+                            {% else %}
+                                <div class="field-group field-group--text field-group--email">
+                                    <label for="email">{{ 'cart.checkout.email' |  t }}</label>
+                                    <input type="text" pattern="[^@\s]+@[^@\s]+\.[^@\s]+" name="email" placeholder="{{ 'cart.checkout.email_placeholder' |  t }}" ref="first_input" v-model="params.email" required maxlength="60">
+                                    <span class="input-error">{{ 'cart.checkout.error_email' |  t }}</span>
+                                </div>
+                                <button type="submit" class="button--full button--primary" :class="{'button--loading':sending}" name="checkout">{{ 'cart.checkout.contact_later_submit' | t }}</button>
+                            {% endif %}
+
+                            <div class="t-cart__message t-cart__message--error icon-alert" v-if="error">{{ 'cart.general.sent_error' | t }}</div>
+                        </form>
+
+                        <div class="t-cart__legal">
+                            <div class="toggle-title icon_after-chevron-down" v-toggle-active><p>{{ settings.legals_title }}</p></div>
+                            <div class="toggle-text">{{ settings.legals_text }}</div>
+                        </div>
+
+                    </div>
+
+                    <div v-else>
+                        <h1 class="t-cart__subtitle">
+                            {{ 'cart.confirm.title' |  t }}
+                        </h1>
+                        <h2 class="t-cart__partner">[[ partner.title ]]</h2>
+
+                        <div class="t-cart--confirm_result">
+                            <div class="t-cart__map">
+                                <img :src="'https://maps.googleapis.com/maps/api/staticmap?center='+partner.position.lat+','+partner.position.lng+'&zoom=13&size=596x450&maptype=roadmap&key={{ settings.gmap_api }}'" width="596" height="450"/>
+                                <div class="sn-partner sn-partner--light">
+                                    <h3 class="sn-partner__title">[[ partner.title ]]</h3>
+                                    <p>{{ 'cart.checkout.partner_title' |  t }}</p>
+                                    <div class="sn-partner__description">
+                                        <div class="sn-partner__description-content">
+                                            <p>[[ partner.address ]]<br/>[[ partner.postal_code ]] [[ partner.city ]]</p>
+                                            <p>
+                                                <a :href="'tel:'+partner.tel" class="icon-phone" v-if="partner.tel">[[ partner.tel ]]</a>
+                                                <a :href="'tel:'+partner.fax" class="icon-fax" v-if="partner.fax">[[ partner.fax ]]</a>
+                                                <a :href="partner.link" v-if="partner.link" class="icon-internet" target="_blank" rel="noopener noreferrer">[[ partner.link.replace('https://','').replace('http://','') ]]</a>
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="t-cart__summary">
+                                {{ 'cart.confirm.summary_1' |  t }}
+                                <b>[[ params.email ]]</b><br/><br/>
+                                {{ 'cart.confirm.summary_2' |  t({brand: settings.brand}) }}
+                            </div>
+                        </div>
+                    </div>
+
+                    {{ render(path('custom_reinsurance_page', {'slug' : "reinsurance"})) }}
+
+                {% else %}
+
+                    <script>
+                        document.location.href = '{{ routes.cart_url }}';
+                    </script>
+
+                {% endif %}
+            </div>
+        </div>
+    </checkout>
+
+    
+{% endblock %}

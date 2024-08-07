@@ -1,0 +1,43 @@
+.sn-nav{
+	&__submenu{ background: $color-background }
+}
+
+.sn-push-product{
+	transition: allow(box-shadow background); background: none;
+	&:hover{
+		box-shadow: 0 0 10px rgba(0, 0, 0, 0.2); background: #fff;
+	}
+
+	&__bottom{
+		@media #{$to-small}{ display: block }
+	}
+
+	@media #{$to-phone}{
+		&__cta{ font-weight: 500 }
+	}
+
+}
+
+.sn-push-products{
+	.swiper-button-next:after{ content: '\e9c4'; font-family: $font-icon; left: 0 }
+	.swiper-button-prev:after{ content: '\e9c2'; font-family: $font-icon; left: 0 }
+}
+
+.sn-collection-nav{
+	margin-bottom: 4px; margin-top: 4px; position: relative;
+	&:after{ border-bottom: 1px solid $color-border; content: ''; position: absolute; bottom: 0; left: 0; width: 100%; z-index: -1 }
+	&__items{
+		padding: 0; justify-content: center;
+		&:after{ display: none }
+	}
+}
+
+.sn-official{
+	border-radius: 4px; padding: $space-xs $space-s; background: $color-primary;
+	img{ width: 140px; height: auto }
+	&__text{
+		margin-top: 2rem; font-weight: bold;
+	}
+}
+
+.sn-partner{ min-width: 53% }

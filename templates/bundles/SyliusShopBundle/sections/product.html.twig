@@ -1,0 +1,187 @@
+{% set images_count = product.images | length %}
+
+<product inline-template token="{{ render(url('sylius_shop_partial_cart_add_item', {'template': '@SyliusShop/snippets/csrf_token.html.twig', 'productId': product.id})) }}">
+    <div class="s-product site-wrap" v-if="product">
+
+        <tax-switch></tax-switch>
+
+        {% set tabs = 'care,ingredients' | split(',') %}
+
+        {% if product.images| length %}
+            <div class="s-product__images">
+
+                <div class="s-product__image-print">
+                    <img src="{% include '@SyliusShop/snippets/picture_url.html.twig' with { src: product.images[0], resize: '1920x1440' } %}"/>
+                </div>
+
+                <transition name="fade">
+                    <div class="s-product__zoom" v-if="zoomed">
+                        <div class="s-product__zoom-inner">
+                            {% if images_count > 1 %}
+                                <swiper ref="swiper_zoom">
+                                    {% for image in product.images %}
+                                        <swiper-slide>
+                                            {% include '@SyliusShop/snippets/picture.html.twig' with { src: image, resize: '1080x1080', alt: image.title } %}
+                                        </swiper-slide>
+                                    {% endfor %}
+                                    <div class="swiper-pagination" slot="pagination"></div>
+                                    <div class="swiper-button-prev icon_after-arrow-left" slot="button-prev"></div>
+                                    <div class="swiper-button-next icon_after-arrow-right" slot="button-next"></div>
+                                </swiper>
+                            {% elseif images_count == 1 %}
+                                {% include '@SyliusShop/snippets/picture.html.twig' with { src: product.images[0], resize: '1080x1080', alt: image.title } %}
+                            {% endif %}
+                            <a class="s-product__zoom-close icon-close" @click="zoomed=false"></a>
+                        </div>
+                    </div>
+                </transition>
+
+                {% if images_count > 1 %}
+                    <div class="s-product__swiper">
+                        <a class="s-product__image-zoom icon-layer-expand" @click="zoom"></a>
+                        <swiper ref="swiper">
+                            {% for image in product.images %}
+                                <swiper-slide>
+                                    {% include '@SyliusShop/snippets/picture.html.twig' with { src: image, resize: '540x540', alt: image.title } %}
+                                </swiper-slide>
+                            {% endfor %}
+                            <div class="swiper-pagination" slot="pagination"></div>
+                            <div class="swiper-button-prev icon_after-arrow-left" slot="button-prev"></div>
+                            <div class="swiper-button-next icon_after-arrow-right" slot="button-next"></div>
+                        </swiper>
+                    </div>
+                {% elseif images_count == 1 %}
+                    <div class="s-product__swiper s-product__swiper--disabled">
+                        <a class="s-product__image-zoom icon-layer-expand" @click="zoom"></a>
+                        {% include '@SyliusShop/snippets/picture.html.twig' with { src: product.images[0], resize: '540x540', alt: image.title } %}
+                    </div>
+                {% endif %}
+            </div>
+        {% endif %}
+
+        <div class="s-product__content">
+            <div class="s-product__content--info">
+
+                <h1 class="s-product__title">
+                    {{ product.title }}
+                </h1>
+
+                <p class="s-product__sku">Réf : [[ replacestring(current_variant.sku,'_',' ') ]]</p>
+
+                <form @submit.prevent="addToCart" class="s-product__form">
+
+                    {% if not product.has_only_default_variant %}
+                        <div class="s-product__choose">
+                            <div class="s-product__options">
+                                {% for option in product.options_with_values %}
+                                    {% set option_handle = option.name|handleize %}
+                                    <div class="s-product__option s-product__option--{{ option_handle }} s-product__option--{{ option.values | length }}">
+                                        <div class="s-product__values">
+                                            {% if option_handle == "color" %}
+                                                {% for color in option.values %}
+                                                    <label class="color">
+                                                        <input type="radio" v-model="options[{{ option.position }}]" :disabled="!isAvailable({{ option.position }}, '{{ color }}')" @change="updateSelected({{ option.position }})" name="options[{{ option.name }}]" value="{{ color }}"{% if option.selected_value == value %} checked{% endif %}>
+                                                        {% set colors = color | split('/') %}
+                                                        {% if colors.size == 2 %}
+                                                            <a class="color__item color__double">
+                                                                {% for _color in colors %}
+                                                                    <span class="bg-color--{{ _color | handle }}"></span>
+                                                                {% endfor %}
+                                                            </a>
+                                                        {% else %}
+                                                            <a class="color__item bg-color--{{ color | handle }}"></a>
+                                                        {% endif %}
+                                                    </label>
+                                                {% endfor %}
+                                            {% else %}
+                                                {% for value in option.values %}
+                                                    <label class="checkbox-button">
+                                                        <input type="radio" v-model="options[{{ option.position }}]" :disabled="!isAvailable({{ option.position }}, '{{ value }}')" @change="updateSelected({{ option.position }})" name="options[{{ option.name }}]" value="{{ value }}"{% if option.selected_value == value %} checked{% endif %}>
+                                                        <a>{{ value }}</a>
+                                                    </label>
+                                                {% endfor %}
+                                            {% endif %}
+                                        </div>
+                                        {% if option_handle == 'size' and product.metafields.connector.size_guide != blank %}
+                                            <a @click="$open('size_guide')" class="s-product__values-more">{{ 'products.product.size_guide' | t }}</a>
+                                        {% endif %}
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    {% endif %}
+
+                    <div class="s-product__price">
+                        <template v-if="current_variant">
+                            <template v-if="current_variant.price < current_variant.compare_at_price">
+                                <b>[[ getPrice(current_variant.price) | money ]]<sup>[[ mode ]]</sup></b>
+                                <s v-if="current_variant.price < current_variant.compare_at_price">[[ getPrice(current_variant.compare_at_price) | money ]]<sup>[[ mode ]]</sup></s>
+                            </template>
+                            <template v-else>
+                                [[ getPrice(current_variant.price) | money ]]<sup>[[ mode ]]</sup>
+                            </template>
+                        </template>
+                        <template v-else>
+                            [[ getPrice({{ product.price }}) | money ]]<sup>[[ mode ]]</sup>
+                        </template>
+                    </div>
+
+                    <div class="s-product__form-actions">
+                        <div class="s-product__quantity">
+                            <label for="quantity"  class="s-product__quantity-label">{{ 'cart.label.quantity' | t }}</label>
+                            <a class="s-product__quantity-action icon-remove" @click="adjustQuantity(-1)"></a>
+                            <b>[[ quantity ]]</b>
+                            <a class="s-product__quantity-action icon-add" @click="adjustQuantity(1)"></a>
+                            <input type="hidden" v-model="quantity" name="quantity" value="1" min="1">
+                        </div>
+                        <div class="s-product__submit">
+                            <button type="submit" name="add" :disabled="!current_variant" class="button button--full icon-heart">
+                                {{ 'products.product.add_to_cart' | t }}
+                            </button>
+                        </div>
+                    </div>
+
+                </form>
+
+                <div class="s-product__description s-product__description--available">
+                    <template v-if="current_variant_quantity">
+                        <p class="s-product__description-title is-available">{{ 'products.product.available' | t }}</p>
+                        <div class="s-product__description-text is-available">{{ 'products.product.available_detail' | t }}</div>
+                   </template>
+                   <template v-else>
+                        <p class="s-product__description-title is-unavailable">{{ 'products.product.unavailable' | t }}</p>
+                        <div class="s-product__description-text is-unavailable">{{ 'products.product.unavailable_detail' | t }}</div>
+                   </template>
+                </div>
+
+                <div class="s-product__description s-product__description--text">
+                    <p class="s-product__description-title">{{ 'products.product.description_title' | t }}</p>
+                    <div class="s-product__description-text">
+                        {{ product.description|nl2br|raw }}
+                    </div>
+
+                    {% if product.has_compatibility %}
+                        <div class="s-product__description-text">
+                            <b>{{ 'products.product.models_title' | t }} :</b>
+                            <ul>
+                                {% for vehicle in product.vehicles %}
+                                    {% if vehicle.level > 0 %}
+                                        <li>{% if vehicle.level == 2 %}{{ vehicle.parent.title }}{% endif%} {{ vehicle.title }}</li>
+                                    {% endif %}
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="s-product__actions">
+                    {% set pdf_file = product.attribute('pdf') %}
+                    {% if pdf_file %}
+                        <a class="button button--light icon-data-input" href="{{ pdf_file }}" target="_blank">{{ 'products.product.documents_cta' | t }}</a>
+                    {% endif %}
+                    <a class="button button--light icon-printer" href="javascript:window.print()">{{ 'products.product.print_cta' | t }}</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</product>

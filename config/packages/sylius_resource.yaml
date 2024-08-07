@@ -1,0 +1,8 @@
+# config/packages/sylius_resource.yaml
+sylius_resource:
+    resources:
+        app.legalContent:
+            driver: doctrine/orm # You can use also different driver here
+            classes:
+                model: App\Entity\LegalContent
+                repository: App\Repository\LegalContentRepository

@@ -1,0 +1,55 @@
+.s-header{
+  &__main,&__logo a{ background: $color-background }
+}
+
+.s-footer{
+  &__copy{ text-transform: uppercase }
+}
+
+.s-product {
+  &__zoom{
+    background: $color-background;
+  }
+  &__images {
+    .swiper{
+      &-button-prev, &-button-next {
+        background: $color-background;
+      }
+    }
+  }
+
+  &__form-actions &__submit button.button--full{ background: $color-primary !important; border-color: $color-primary !important; color: #fff !important }
+}
+
+.s-collection {
+  &__image{ margin-bottom: 0 }
+  &__title{ position: absolute; bottom: 0 }
+  &__header{ top: 0; bottom:  0; height: auto }
+}
+
+.s-hero{
+  .sn-official{
+    @media #{$to-phone}{
+      box-shadow: 0 14px 10px rgba(0, 0, 0, 0.35);
+      &__text{ margin-top: $space }
+    }
+  }
+}
+
+.s-vehicles-list {
+  &__tag{
+    @media #{$to-phone}{ font-size: 10px }
+  }
+}
+
+.s-pushes__cta.button, .s-hero__cta.button{
+  background: $color-primary; border-color: $color-primary; color: #fff;
+}
+
+.s-pushes__cta.button{
+  &:hover{ background: transparent }
+}
+
+.s-hero__cta.button{
+  &:hover{ background: #fff }
+}

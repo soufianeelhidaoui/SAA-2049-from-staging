@@ -1,0 +1,89 @@
+<paginate :per_page="8" :init="8" :page_size="{{ min(products.currentPageResults|length, products.maxPerPage) }}" :total="{{ products|length }}" inline-template>
+    <div class="s-collection">
+        <div class="s-collection__image">
+            {% set height = '1920x' | append(settings.cover_height) %}
+            <on-scroll animation="parallax" strength="200px" :active="{% if 'vw' in settings.theme %}true{% else %}false{% endif %}">
+                {% set banner = collection.image('banner')  %}
+                {% if banner %}
+                    {% set image = banner %}
+                {% elseif collection.image %}
+                    {% set image = collection.image %}
+                {% else %}
+                    {% set accessories = collections(collection.childOf('lifestyle')?'lifestyle':'accessories') %}
+                    {% set image = accessories.image %}
+                {% endif %}
+                {% include '@SyliusShop/snippets/picture.html.twig' with { src: image, sources:'max-width:420px=420x223,max-width:1199px=1199x329', resize: height, alt: collection.title, eager:true } %}
+            </on-scroll>
+            <div class="s-collection__header">
+                <div class="site-wrap">
+                    {% include '@SyliusShop/snippets/official.html.twig' %}
+                    <div class="s-collection__title">
+                        <div class="s-collection__title-content">
+                            {% set _collection = collection | json %}
+                            <h1>
+                                {% if collection.code == 'lifestyle' %}
+                                    Tous vos produits lifestyle<br/> d’Origine {{ settings.brand }}
+                                {% elseif collection.childOf('vehicles') or collection.code == 'accessories' %}
+                                    Votre Catalogue Accessoires d’Origine<br/> {{ settings.brand }}
+                                {% else %}
+                                    {{ collection.title }}
+                                {% endif %}
+                                <vehicle inline-template>
+                                    <span class="s-collection__title-model" v-if="vehicle">
+                                        [[ vehicle.model ]]
+                                        <span v-if="version">[[ version.model ]]</span>
+                                    </span>
+                                </vehicle>
+                            </h1>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {% include '@SyliusShop/snippets/collection-nav.html.twig' %}
+
+        <div class="site-wrap">
+
+            <header role="banner">
+                {% include '@SyliusShop/snippets/breadcrumb.html.twig' %}
+                <div class="s-collection__filters">
+                    {% include '@SyliusShop/snippets/filter-bar.html.twig' with { data: form } %}
+                </div>
+            </header>
+
+            {% set collection_products_size = products | size %}
+            {% if collection_products_size > 0 %}
+                <div class="s-collection__grid">
+                    {% for product in products %}
+                        <template v-if="count >= {{ loop.index }}">
+                            {% include '@SyliusShop/snippets/push-product.html.twig' with { data: product } %}
+                        </template>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="t-cart__wrapper">
+                    <p class="t-cart__empty">
+                        {{ 'collections.general.no_result' | t }}
+                    </p>
+                    <a href="{{ collection|url }}" class="button" @click="$setVehicle(false)">{{ 'collections.general.filters_reset' | t }}</a>
+                </div>
+            {% endif %}
+
+
+            <div class="s-collection__pagination" v-if="count<page_size">
+                <button class="button" @click="loadMore">{{ 'collections.general.load_more' |  t }}</button>
+            </div>
+            {% if products.hasNextPage() %}
+                <div class="s-collection__pagination" v-else>
+                    <a class="button" href="{{ paginate_next_url(app.request) }}">{{ 'collections.general.load_more' |  t }}</a>
+                </div>
+            {% endif %}
+        </div>
+
+        <drawer position="right" type="filters" title="Tous les filtres">
+            {% include '@SyliusShop/snippets/filters.html.twig' with { data:form, cart:cart } %}
+        </drawer>
+    </div>
+
+</paginate>

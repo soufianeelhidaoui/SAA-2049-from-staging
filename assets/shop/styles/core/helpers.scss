@@ -1,0 +1,33 @@
+.clearfix {
+  @include clearfix;
+}
+
+.visually-hidden {
+  @include visually-hidden;
+}
+
+.js-focus-hidden:focus {
+  outline: none;
+}
+
+.label-hidden {
+  @include visually-hidden;
+
+  // No placeholders, so force show labels
+  .no-placeholder & {
+    @include visually-shown;
+  }
+}
+
+.visually-shown {
+  @include visually-shown;
+}
+
+
+.hide {
+  /* stylelint-disable declaration-no-important */
+  display: none !important;
+}
+
+.is-available { color: $color-available }
+.is-unavailable { color: $color-unavailable }

@@ -1,0 +1,48 @@
+.s-reinsurance{
+  $size:14.6rem;
+
+  border: none; padding: 0;
+  &__title{
+    color: #000;
+    text-align: left; @extend %title;
+    @media #{$to-phone}{ font-size: $font-size-m }
+  }
+  &__entries{
+    padding-top: 4rem; display: flex; justify-content: space-around;
+    @media #{$to-phone}{ display: grid; grid-template-columns: 1fr 1fr; grid-gap: 20px; padding-top: 0 }
+    .icon-arrow-right::before {
+      font-size: 4rem;
+      color: #A7AEB4;
+      margin-top: 50px;
+    }
+    .icon-arrow-right{
+      @media #{$to-phone}{ display: none }
+    }
+  }
+  &__entry{
+    display: flex; align-items: center; flex-direction: column; text-align: center; width: 25%;
+    &-icon{
+      background-color: var(--color-grey-dark); width: $size; height: $size; border-radius: 50%;
+      display: flex; align-content: center; flex-direction: row; flex-wrap: nowrap; align-items: center;
+      justify-content: center; color: $color-primary;
+      &:before { font-size: 6rem; color: #78faae;}
+      @media #{$to-phone}{ width: 6.4rem; height: 6.4rem;
+        &:before { font-size: 3rem; }
+      }
+    }
+    &-title{
+      margin-top: $space-m; @extend %text;
+      color: #000;
+      @media #{$to-phone}{ margin-top: $space-xs; line-height: 1.2 }
+    }
+    @media #{$to-phone}{ width: 100% }
+  }
+  &__next{
+    img{ top: math.div($size,2); position: relative; transform: translateY(-50%) }
+  }
+  .site-wrap{
+    @media #{$to-phone}{ padding-left: $space-s; padding-right: $space-s }
+  }
+
+  .template-cart:not(.design_mode) &{ display: none!important }
+}

@@ -1,0 +1,35 @@
+# config/packages/liip_imagine.yaml
+liip_imagine:
+    loaders:
+        aws_s3:
+            stream:
+                wrapper: gaufrette://sylius_image/
+            
+    resolvers:
+        aws_s3:
+            aws_s3:
+                client_config:
+                    credentials:
+                        key:    "%aws_s3_key%"
+                        secret: "%aws_s3_secret%"
+                    region: "%aws_s3_region%"
+                    version: "%aws_s3_version%"
+                bucket: "%aws_s3_bucket%"
+                get_options:
+                    Scheme: https
+                put_options:
+                    CacheControl: "max-age=86400"
+                cache_prefix: '%aws_s3_folder%/media/cache'
+    data_loader: aws_s3
+    cache: aws_s3
+
+    filter_sets:
+        cache: ~
+        runtime:
+            cache: aws_s3
+            quality: 90
+        thumb:
+            cache: aws_s3
+            quality: 75
+            filters:
+                thumbnail: { size: [ 150, 150 ], mode: outbound }

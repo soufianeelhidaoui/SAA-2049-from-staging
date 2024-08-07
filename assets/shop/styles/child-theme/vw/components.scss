@@ -1,0 +1,7 @@
+.template-index, .template-page-parse, .template-collection, .template-collection-lifestyle{
+	.c-burger{
+		&__icon i{
+			&, &:before, &:after{ background: #fff }
+		}
+	}
+}

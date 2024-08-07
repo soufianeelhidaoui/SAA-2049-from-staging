@@ -1,0 +1,237 @@
+{% extends '@SyliusShop/layout.html.twig' %}
+
+{% block title %}{{ 'sylius.ui.your_shopping_cart'|trans }}{% endblock %}
+
+{% block content %}
+
+    <div class="t-cart">
+        <div class="site-wrap">{% include '@SyliusShop/snippets/breadcrumb.html.twig' %}</div>
+
+        {% if cart.item_count > 0 %}
+            <h1 class="t-cart__title site-wrap">{{ 'cart.general.title' | t }}</h1>
+
+            <cart inline-template>
+                <div class="t-cart__table site-wrap">
+                    <div class="t-cart__count">{{ 'cart.general.count' |  t }}<b>{{ cart.item_count }}</b></div>
+                    <table class="responsive-table">
+                        <thead class="small--hide">
+                        <tr>
+                            <th>{{ 'cart.label.product' | t }}</th>
+                            <th><tax-switch></tax-switch></th>
+                            <th>{{ 'cart.label.price' | t }}</th>
+                            <th>{{ 'cart.label.quantity' | t }}</th>
+                            <th>{{ 'cart.label.total' | t }}</th>
+                            <th>{{ 'cart.label.remove' | t }}</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+
+                        {% for item in cart.items %}
+
+                            <tr class="responsive-table-row">
+
+                                <td data-label="{{ 'customer.order.product' | t }}">
+
+                                    {% if item.image != blank %}
+                                        <a href="{{ item.product|url }}" data-product-id="{{ item.id }}" data-product-name="{{ item.product.title }}">
+                                            <img src="{{ item.image | img_url( '460x460' )  }}"/>
+                                        </a>
+                                    {% endif %}
+
+                                </td>
+                                <td class="t-cart__description">
+                                    <a href="{{ item.product|url }}" class="t-cart__description-title" data-product-id="{{ item.id }}" data-product-name="{{ item.product.title }}">{{ item.product.title }}</a>
+
+                                    <span class="t-cart__description-ref">Réf. : {{ item.variant.sku }}</span>
+
+                                    {% for option in item.options_with_values %}
+                                        {% if option.value != 'Default Title' %}
+                                            <span class="t-cart__description-option t-cart__description-option--{{ option.name | handleize }}">{{ option.name }} : {{ option.value }}</span>
+                                        {% endif %}
+                                    {% endfor %}
+
+                                    <span class="t-cart__description-avaibility">
+                                        {% if item.variant.inventory_quantity > 0 %}
+                                            <span class="is-available">{{ 'products.product.available' | t }}</span>
+                                        {% else %}
+                                            <span class="is-unavailable">{{ 'products.product.unavailable' | t }}</span>
+                                        {% endif %}
+                                    </span>
+                                </td>
+                                <td class="t-cart__column" data-label="{{ 'cart.label.price' | t }}">
+
+                                    <price inline-template>
+                                        <div class="t-cart__price">
+                                            <span v-if="mode==='ttc'">{{ item.price | money }}<sup>TTC</sup></span>
+                                            <span v-else> {{ item.price | divided_by( 1.2 ) | money }}<sup>HT</sup></span>
+                                            {% if item.original_price != item.price %}
+                                                <s v-if="mode==='ttc'">{{ item.original_price | money }}</s>
+                                                <s v-else>{{ item.original_price | divided_by( 1.2 ) | money }}</s>
+                                            {% endif %}
+                                        </div>
+                                    </price>
+                                </td>
+                                <td class="t-cart__column t-cart__column--quantity"
+                                    data-label="{{ 'cart.label.quantity' | t }}">
+                                    <div class="s-product__quantity">
+                                        <form method="post">
+                                            <input type="hidden" name="_method" value="PATCH"/>
+                                            <input type="hidden" name="sylius_cart[items][{{ loop.index0 }}][quantity]" value="{{ item.quantity | minus( 1 ) }}"/>
+                                            <input type="hidden" name="sylius_cart[_token]" value="{{ form._token.vars.value }}"/>
+                                            <button type="submit" class="s-product__quantity-action icon-remove"></button>
+                                        </form>
+                                        <b>{{ item.quantity }}</b>
+                                        <form method="post">
+                                            <input type="hidden" name="_method" value="PATCH"/>
+                                            <input type="hidden" name="sylius_cart[items][{{ loop.index0 }}][quantity]" value="{{ item.quantity | plus( 1 ) }}"/>
+                                            <input type="hidden" name="sylius_cart[_token]" value="{{ form._token.vars.value }}"/>
+                                            <button type="submit" class="s-product__quantity-action icon-add"></button>
+                                        </form>
+                                    </div>
+                                </td>
+                                <td class="t-cart__column" data-label="{{ 'cart.label.total' | t }}">
+                                    <price inline-template>
+                                        <div class="t-cart__price">
+                                            <span v-if="mode==='ttc'">{{ item.line_price | money }}<sup>TTC</sup></span>
+                                            <span v-else>{{ item.line_price | divided_by( 1.2 ) | money }}<sup>HT</sup></span>
+                                        </div>
+                                    </price>
+                                </td>
+                                <td class="t-cart__column  t-cart__column--order-2" data-label="{{ 'cart.label.remove' | t }}">
+                                    <form action="{{ path('sylius_shop_cart_item_remove', {'id': item.id}) }}" method="post">
+                                        <input type="hidden" name="_method" value="DELETE"/>
+                                        <input type="hidden" name="_csrf_token" value="{{ csrf_token(item.id) }}"/>
+                                        <input type="submit" class="t-cart__remove" value="{{ 'cart.general.remove' | t }}">
+                                    </form>
+                                </td>
+                            </tr>
+
+                        {% endfor %}
+                        </tbody>
+                    </table>
+
+                    <div class="swiper-global">
+                        <swiper :options="{ slidesPerView: 1, watchSlidesVisibility: true, spaceBetween: 20, scrollbar: {el: '.swiper-scrollbar', draggable: true }}">
+
+                            {% for item in cart.items %}
+
+                                <swiper-slide>
+
+                                    <div class="t-cart__item-block" data-label="{{ 'customer.order.product' | t }}">
+
+                                        {% if item.image != blank %}
+                                            <a href="{{ item|url }}">
+                                                <img src="{{ item.image | img_url( '460x460' ) }}"/>
+                                            </a>
+                                        {% endif %}
+
+                                    </div>
+                                    <div class="t-cart__description t-cart__item-block">
+                                        <a href="{{ item.url }}">{{ item.product.title }}</a>
+
+                                        <span class="t-cart__description-ref">Réf. : {{ item.variant.sku }}</span>
+
+                                        {% for option in item.options_with_values %}
+                                            <span class="t-cart__description-option t-cart__description-option--{{ option.name | handleize }}">{{ option.name }} : {{ option.value }}</span>
+                                        {% endfor %}
+
+                                        <span class="t-cart__description-avaibility">
+                                            {% if item.variant.available %}
+                                                <span class="is-available">{{ 'products.product.available' | t }}</span>
+                                            {% else %}
+                                                <span class="is-unavailable">{{ 'products.product.unavailable' | t }}</span>
+                                            {% endif %}
+                                        </span>
+                                    </div>
+                                    <div class="t-cart__column t-cart__column--quantity t-cart__item-block" data-label="{{ 'cart.label.quantity' | t }}">
+                                        <div class="s-product__quantity">
+                                            <form method="post">
+                                                <input type="hidden" name="_method" value="PATCH"/>
+                                                <input type="hidden" name="sylius_cart[items][{{ loop.index0 }}][quantity]" value="{{ item.quantity | minus( 1 ) }}"/>
+                                                <input type="hidden" name="sylius_cart[_token]" value="{{ form._token.vars.value }}"/>
+                                                <button type="submit" class="s-product__quantity-action icon-remove"></button>
+                                            </form>
+                                            <b>{{ item.quantity }}</b>
+                                            <form method="post">
+                                                <input type="hidden" name="_method" value="PATCH"/>
+                                                <input type="hidden" name="sylius_cart[items][{{ loop.index0 }}][quantity]" value="{{ item.quantity | plus( 1 ) }}"/>
+                                                <input type="hidden" name="sylius_cart[_token]" value="{{ form._token.vars.value }}"/>
+                                                <button type="submit" class="s-product__quantity-action icon-add"></button>
+                                            </form>
+                                        </div>
+                                        <tax-switch></tax-switch>
+                                    </div>
+                                    <div class="t-cart__column t-cart__item-block" data-label="{{ 'cart.label.price' | t }}">
+
+                                        <price inline-template>
+                                            <div class="t-cart__price">
+                                                <span class="label-mobile">{{ 'cart.label.price' | t }} :</span>
+                                                <span v-if="mode==='ttc'">{{ item.price | money }}<sup>TTC</sup></span>
+                                                <span v-else> {{ item.price | divided_by( 1.2 ) | money }}<sup>HT</sup></span>
+                                                {% if item.original_price != item.price %}
+                                                    <s v-if="mode==='ttc'">{{ item.original_price | money }}</s>
+                                                    <s v-else>{{ item.original_price | divided_by( 1.2 ) | money }}</s>
+                                                {% endif %}
+                                            </div>
+                                        </price>
+                                    </div>
+                                    <div class="t-cart__column t-cart__item-block" data-label="{{ 'cart.label.total' | t }}">
+                                        <price inline-template>
+                                            <div class="t-cart__price">
+                                                <span class="label-mobile">{{ 'cart.label.total' | t }} :</span>
+                                                <span v-if="mode==='ttc'">{{ item.line_price | money }}<sup>TTC</sup></span>
+                                                <span v-else>{{ item.line_price | divided_by( 1.2 ) | money }}<sup>HT</sup></span>
+                                            </div>
+                                        </price>
+                                    </div>
+                                    <div class="t-cart__column t-cart__item-block" data-label="{{ 'cart.label.remove' | t }}">
+                                        <form action="{{ path('sylius_shop_cart_item_remove', {'id': item.id}) }}" method="post">
+                                            <input type="hidden" name="_method" value="DELETE"/>
+                                            <input type="hidden" name="_csrf_token" value="{{ csrf_token(item.id) }}"/>
+                                            <input type="submit" class="t-cart__remove" value="{{ 'cart.general.remove' | t }}">
+                                        </form>
+                                    </div>
+                                </swiper-slide>
+                            {% endfor %}
+                            <div class="swiper-scrollbar" slot="scrollbar"></div>
+                        </swiper>
+                    </div>
+
+                    <div class="t-cart__info">
+                        <div class="is-available">{{ 'cart.general.available' | t }}</div>
+                        <div class="is-unavailable">{{ 'cart.general.unavailable' | t }}</div>
+                    </div>
+                </div>
+            </cart>
+
+            <div class="t-cart__total">
+                <div class="site-wrap t-cart__total-content">
+                    <div class="t-cart__total-content_subtotal">
+                        <p>{{ 'cart.general.subtotal' | t }} : </p>
+                        <p class="t-cart__total-content_subtotal-price">
+                            <price inline-template>
+                                <template>
+                                    <span v-if="mode==='ttc'">{{ cart.total_price | money }}<sup>TTC</sup></span>
+                                    <span v-else>{{ cart.total_price | divided_by( 1.2 ) | money }}<sup>HT</sup></span>
+                                </template>
+                            </price>
+                        </p>
+                    </div>
+                    <a class="t-cart__total-content_subtotal-cta icon_after-chevron-right"
+                       href="{{ routes.checkout_url }}"><span>{{ 'cart.general.checkout' | t }} {{ settings.short_brand }}</span></a>
+                </div>
+            </div>
+        {% else %}
+            <h1 class="t-cart__title site-wrap">{{ 'cart.general.title' | t }}</h1>
+
+            <div class="t-cart__wrapper site-wrap">
+                <p class="t-cart__empty">{{ 'cart.general.empty' | t }}</p>
+                <a class="button" href="{{ routes.all_products_collection_url }}">{{ 'cart.general.continue_browsing' | t }}</a>
+            </div>
+
+        {% endif %}
+
+        {% include '@SyliusShop/sections/reinsurance.html.twig' %}
+    </div>
+
+{% endblock %}

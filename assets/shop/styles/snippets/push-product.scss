@@ -1,0 +1,58 @@
+.sn-push-product{
+  background: #fff; position: relative;
+  &--empty{ background: rgba(0,0,0,0.02); pointer-events: none }
+
+  &__image{
+    position: relative;
+    img{ width: 100% }
+    &-empty{
+      position: overlay(); display: flex; align-content: center; justify-content: center; align-items: center; background: rgba(0,0,0,0.03);
+      img{ opacity: 0.1; filter: grayscale(1); width: 70% }
+    }
+  }
+
+  &__tag{
+    position: absolute; right: 0;transform: translateY(-50%); color: white; padding: 1rem 1.6rem 1rem 2.5rem;
+    font-size: $font-size-xxs; overflow: hidden;
+    &:before {
+      content: ""; position: overlay(); background: $color-grey-light; z-index: -1; transform: skewX(-30deg) translateX(10px);
+    }
+  }
+  &__quick-buy{ position: absolute; bottom: 1rem; right: 1rem; cursor: pointer }
+  &__favorite{ position: absolute; top: 1rem; right: 1rem; cursor: pointer }
+  &__content{ margin-top: 0;
+    position: relative;
+    height: 20.4rem;
+    padding: 3rem $font-size-s $font-size-s;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; }
+  &__description{
+    margin-bottom: 1rem; @extend %text; @include line-clamp(2)
+  }
+  &__colors{ position: absolute; right: 0; bottom: 100%; }
+  &__title{
+    margin-bottom: 1rem; font-weight: bold;
+
+    @media #{$to-phone}{ font-size: $font-size-body }
+
+    a{ @include line-clamp(3) }
+  }
+  &__price{
+    font-weight: bold; margin-top: auto; margin-bottom: 2rem; font-size: $font-size-m!important;
+    s{ font-weight: normal; font-size: $font-size-icon; color: $color-grey-light; margin-left: $space-xs }
+  }
+  &__bottom{ display: flex; justify-content: space-between; align-items: center }
+  &__avaibility{ font-weight: 700; font-size: $font-size-xs; }
+  &__cta{
+    font-weight: 400; font-size: $font-size-xs;
+    .link{ text-decoration: underline }
+    .icon_after-external-link{
+      vertical-align: middle;
+      &:after{ font-size: inherit; margin-left: 4px }
+    }
+    .button{ display: none }
+  }
+  &__overlay{ position: overlay() }
+}
+

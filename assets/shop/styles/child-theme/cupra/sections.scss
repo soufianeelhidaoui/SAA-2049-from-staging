@@ -1,0 +1,170 @@
+.s-header{
+  &__logo img{height: 30px;}
+  &__main,&__logo a{ background: $color-background }
+}
+
+.s-footer{
+  background-color: #F5F5F5;
+  &__title{
+    font-weight: 400;
+    font-size: 32px;
+    line-height: 36px;
+    color: #242221;
+  }
+  &__copy{
+    color: var(--color-body-text);
+    font-weight: 300;
+    font-size: 13px;
+    line-height: 42px;
+  }
+  &__link{
+    a{
+      color: var(--color-body-text);
+      font-weight: 300;
+      line-height: 42px;
+      font-size: 13px;
+    }
+  }
+  &__copy{ text-transform: uppercase }
+  
+}
+.s-footer__submenu .s-footer__link:not(:last-child){
+  border-right: 1px solid #C9C9C9;
+}
+.s-product {
+  &__zoom{
+    background: $color-background;
+  }
+  &__images {
+    .swiper{
+      &-button-prev, &-button-next {
+        background: $color-background;
+      }
+    }
+  }
+  &__price{
+    font-weight: 300;
+    font-size: 56px;
+    line-height: 64px;
+    s{
+      font-size: 24px;
+    }
+  }
+  &__quantity > b{
+    font-weight: 400;
+  }
+  &__quantity-action{
+    background-color: #242221;
+    border-radius: 100px !important;
+  }
+  &__form-actions &__submit button.button--full{ background:#242221 !important; border-color:#242221 !important; color: #fff !important; border-radius: 0 !important; }
+  &__title{
+    font-weight: 400;
+    font-size: 42px;
+    line-height: 36px;
+  }
+  &__sku{
+    font-weight: 400;
+    font-size: 18px;
+    line-height: 30px;
+  }
+  &__description-title{
+    font-weight: 400;
+    font-size: 22px;
+    line-height: 36px;
+  }
+&__description-text{
+  font-size: 14px;
+  line-height: 24px;
+}
+}
+
+.s-collection {
+  &__title-content h1{
+    font-weight: 400;
+    font-size: 22px;
+    line-height: 36px;
+    padding: 0.5rem 1rem;
+  }
+  &__image{ margin-bottom: 0 }
+  &__title{ position: absolute; bottom: 0 }
+  &__header{ top: 0; bottom:  0; height: auto }
+  &__pagination > button{
+      border-radius: 0 !important;
+      font-size: 14px !important;
+      font-weight: 400 !important;
+  }
+}
+
+.s-hero{
+  &__title{
+    font-weight: 300;
+    line-height: 64px;
+  }
+  &__cta.button{
+    display: none;
+    }
+  }
+  .sn-official{
+    @media #{$to-phone}{
+      box-shadow: 0 14px 10px rgba(0, 0, 0, 0.35);
+      &__text{ margin-top: $space }
+    }
+  }
+
+.s-vehicles-list {
+  &__title{
+    font-weight:300;
+  }
+  &__model{
+    font-weight:400;
+  }
+  &__image{
+    cursor: pointer;
+  }
+  &__tag{
+    @media #{$to-phone}{ font-size: 10px }
+  }
+  &__search{
+    border-color:#C9C9C9;
+  }
+}
+
+.s-push-blog{
+  display:none;
+}
+.s-pushes__cta.button, .s-hero__cta.button, .s-push-blog__cta{
+  background: #242221; border-color: #242221; color: #fff;
+}
+
+.s-pushes__cta.button, .s-push-blog__cta{
+  &:hover{ background: transparent }
+}
+.s-pushes{
+  &__title{
+    font-weight:400;
+    font-size:22px;
+  }
+  &__cta{
+      font-size:16px;
+      font-weight:400;
+  } 
+}
+.s-reinsurance{
+  &__title{
+    font-weight:300;
+    font-size:56px;
+    line-height:64px;
+    font-family: $font-heading;
+  }
+&__entry-title{
+  text-align: left;
+  padding: 1rem;
+}
+&__entry-icon{
+  background-color: transparent;
+  &::before{
+    color: var(--color-primary);
+  }
+}
+}

@@ -1,0 +1,18 @@
+<div class="s-reinsurance">
+    <div class="site-wrap">
+        <div class="s-reinsurance__title">{{ data.title }}</div>
+        <div class="s-reinsurance__entries">
+            {% for block in data.blocks %}
+                <div class="s-reinsurance__entry">
+                    <div class="s-reinsurance__entry-icon icon-{{ block.icon }}"></div>
+                    <div class="s-reinsurance__entry-title">
+                        {{ block.title | raw }}
+                    </div>
+                </div>
+                {% if not loop.last %}
+                    <div class="icon-arrow-right"></div>
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+</div>

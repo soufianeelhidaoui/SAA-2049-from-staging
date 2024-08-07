@@ -1,0 +1,8 @@
+sylius_mailer:
+    sender:
+        name: "No reply"
+        address: no-reply@alaska.fr
+    emails:
+        order_confirmation:
+            subject: "Nous avons bien reçu votre demande"
+            template: "@SyliusShop/emails/order_confirmation.html.twig"

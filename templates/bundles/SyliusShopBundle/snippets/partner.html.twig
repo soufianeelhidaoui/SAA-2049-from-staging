@@ -1,0 +1,26 @@
+<div class="sn-partner" v-if="partner">
+    <a class="sn-partner__close icon-close" @click="deselect"></a>
+    <h3 class="sn-partner__title">[[ partner.title ]]</h3>
+    <p>{{ 'cart.checkout.partner_title' |  t }}</p>
+    <div class="sn-partner__description">
+        <div class="sn-partner__description-content">
+            <p>[[ partner.address ]]<br/>[[ partner.postal_code ]] [[ partner.city ]]</p>
+            <p>
+                <a :href="'tel:'+partner.tel" class="icon-phone" v-if="partner.tel">[[ partner.tel ]]</a>
+                <a :href="'tel:'+partner.fax" class="icon-fax" v-if="partner.fax">[[ partner.fax ]]</a>
+                <a :href="partner.link" v-if="partner.link" class="icon-internet" target="_blank" rel="noopener noreferrer">[[ partner.link.replace('https://','').replace('http://','') ]]</a>
+            </p>
+        </div>
+        <div class="sn-partner__description-cta">
+            {% if settings.theme == 'skoda' %}
+                <a class="button" @click="select">
+                    <span v-if="selected" class="icon-checkmark">{{ 'cart.checkout.selected' |  t }}</span>
+                    <span v-else>{{ 'cart.checkout.select' |  t }}</span>
+                </a>
+            {% else %}
+                <a class="button icon-heart" href="{{ routes.cart_url }}">{{ 'cart.checkout.back_to_cart' |  t }}</a>
+                <a class="sn-partner__description-cta-contact button button--full icon-contact-dealer" @click="select">{{ 'cart.checkout.contact_later' |  t }}</a>
+            {% endif %}
+        </div>
+    </div>
+</div>

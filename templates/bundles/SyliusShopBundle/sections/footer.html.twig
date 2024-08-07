@@ -1,0 +1,60 @@
+<footer class="s-footer">
+	<swiper class="swiper footerlegalcontent" :options="{ slidesPerView: 1, grabCursor: true, loop: true, autoplay: true }">
+		{% if legalContent is not empty %}
+					{% for mention in legalContent %}
+						<swiper-slide class="slide">
+							{{ mention.description }}
+						</swiper-slide>
+					{% endfor %}
+				    {% else %}
+					<p>Aucune mention légale n'est disponible.</p>
+		{% endif %}
+	</swiper>
+	<div class="site-wrap">
+
+		<div class="s-footer__main">
+			{% if menu.footer|length > 0 %}
+				{% for category in menu.footer %}
+					<div class="s-footer__col">
+						{% if category.label != blank %}
+							<p class="s-footer__title">{{ category.label }}</p>
+						{% endif %}
+
+						<ul class="s-footer__links">
+							{% for item in category.items %}
+								<li class="s-footer__link">
+									<a href="{% if item.url is empty %}#{% else %}{{ item.url }}{% endif %}">{{ item.label }}</a>
+								</li>
+							{% endfor %}
+						</ul>
+					</div>
+				{% endfor %}
+			{% endif %}
+		</div>
+
+		{% if menu.sub_footer|length > 0 %}
+			<div class="s-footer__submenu">
+				<ul class="s-footer__links">
+					{% for link in menu.sub_footer %}
+						<li class="s-footer__link">
+							<a href="{{ link.url }}" {% if link.type == 'http_link' %} target="_blank" {% endif %}>{{ link.label }}</a>
+						</li>
+					{% endfor %}
+				</ul>
+			</div>
+		{% endif %}
+
+		<div class="s-footer__sub">
+			{% if settings.mentions != blank %}
+				<div class="s-footer__mentions">
+					{{ settings.mentions }}
+				</div>
+			{% endif %}
+			<div class="s-footer__copy">
+				<a href="{{ routes.root_url }}" itemprop="url">&copy;{{ settings.brand }}
+					{{ "now" | date("Y") }}</a>
+			</div>
+		</div>
+
+	</div>
+</footer>

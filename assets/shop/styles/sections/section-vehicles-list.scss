@@ -1,0 +1,96 @@
+.s-vehicles-list {
+    $c:&;
+
+    &__title {
+        text-align: left;
+        @extend %title;
+        @media #{$to-phone}{ font-size: $font-size-m; max-width: 75%; margin-bottom: $space-xs }
+    }
+    &__search {
+        border-bottom: 1px solid $color-grey-dark; margin-bottom: $space-m; position: relative;
+        @media #{$to-phone}{ margin-bottom: $space-xs }
+        input{ padding-left: $space-m; width: 100% }
+        &:before{ position: absolute; top: 50%; transform: translateY(-50%) }
+        &-results{
+            position: absolute; left: 0; width: 100%; top: 100%; background: #fff; z-index: 99; margin-top: 1px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); max-height: 200px; overflow: auto; padding: math.div($space-s,2) 0;
+        }
+        &-result{
+            padding: $space $space-s; display: block; cursor: pointer;
+            &:hover{ background: $color-primary; color: #fff; font-weight: bold }
+            &+&--none{ display: none }
+            &--none{ pointer-events: none }
+        }
+    }
+    .icon-magnifier:before {
+        font-size: 2.1rem;
+    }
+    input {
+        border: none; background: none;
+    }
+    &__item {
+        text-align:center; border: 2px solid transparent; transition: allow(border background opacity);
+        opacity: 0.2; pointer-events: none;
+        &.swiper-slide-visible{ opacity: 1; pointer-events: all }
+        &-inner{ transition: allow(background); position: relative; z-index: 2; padding: $space-s 0 $space; padding-top: 0 }
+        &:hover {
+            border-color: $color-primary;
+            #{$c}__versions{ opacity: 1; pointer-events: all }
+            #{$c}__item-inner{ background: #fff }
+        }
+    }
+    &__engines{
+        display: inline;
+        @media #{$to-phone}{ display: none }
+    }
+    &__tags{
+        position: absolute;
+        top: 0;
+        right: 1rem;
+        cursor: pointer;
+        font-size: $font-size-xs;
+        transform: translateY(-50%);
+    }
+    &__tag{
+        padding: 0.4rem 1rem; border-radius: 0.4rem; color: $color-white; display: inline-block; font-weight: 500;
+        &--new{ background: $color-grey-dark }
+        &--electrique {background: $color-signal; }
+        &--e-hybrid {background: $color-bright; color: $color-black;}
+        &:after{ margin-left:0.5rem; font-size: inherit; vertical-align: text-bottom }
+    }
+
+    &__model {
+        font-weight: 700; font-size: $font-size-m; line-height: 1; margin-top: $space;
+        @media #{$to-phone}{ font-size: $font-size-s }
+    }
+    .swiper-button-prev {
+        left: -20px; top: 75px;
+    }
+    .swiper-button-next {
+        right: -20px; top: 75px;
+    }
+    .swiper-button-prev, .swiper-button-next {
+        @media #{$to-phone}{ display: none }
+    }
+
+    &__versions{
+        position: absolute; left: -2px; right: -2px; top: 100%; opacity: 0; transition: allow(opacity); z-index: 2;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3); pointer-events: none; padding-top: 2px;
+        &:before{ content: ''; background: #fff; height: 8px; width: 100%; display: block }
+
+        @media #{$to-phone}{ min-width: max-content }
+    }
+    &__version{
+        display: block; padding: 1rem 1.5rem; text-align: left; cursor: pointer; background: #fff; transition: allow(background color);
+        &:hover{ background: $color-primary; color: #fff }
+        @media #{$to-phone}{
+            white-space: nowrap;
+            b{ display: none }
+        }
+    }
+    .swiper-container{
+        padding-top: 1rem; overflow: visible; padding-bottom: 4rem;
+        @media #{$to-phone}{ padding-bottom: 2rem; }
+    }
+    .swiper-button-disabled{ opacity: 0 }
+}

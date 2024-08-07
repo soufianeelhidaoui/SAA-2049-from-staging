@@ -1,0 +1,16 @@
+include:
+  - project: inventivit/devops/gitlab-templates
+    ref: main
+    file:
+      - variables/container-image.yml
+      - jobs/container-image.yml
+  - local: .gitlab/jobs/sylius.yml
+
+variables:
+  DEFAULT_CACHE_KEY_PREFIX: ${CI_DEFAULT_BRANCH}
+  CACHE_KEY_PREFIX: ${CI_COMMIT_REF_SLUG}
+
+stages:
+  - prepare
+  - dependencies
+  - build

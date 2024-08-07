@@ -1,0 +1,142 @@
+.composer_deps_update_rules:
+  rules:
+    - if: $CI_COMMIT_BRANCH != "master"
+      # TODO: uncomment those lines once master is merged.
+      # changes:
+      #   paths:
+      #     - composer.lock
+      #     - composer.json
+      #   compare_to: refs/heads/master
+    - if: $CI_COMMIT_BRANCH == "master"
+    - if: $CI_COMMIT_TAG != null
+
+.composer_deps_dev_cache:
+  cache: &composer_deps_dev_cache
+    key: ${CACHE_KEY_PREFIX}-composer-deps-dev
+    paths:
+      - ${COMPOSER_HOME}
+    policy: pull
+
+.composer_deps_prod_cache:
+  cache: &composer_deps_prod_cache
+    key: ${CACHE_KEY_PREFIX}-composer-deps-prod
+    paths:
+      - ${COMPOSER_HOME}
+    policy: pull
+
+variables:
+  COMPOSER_CONTAINER_IMAGE_NAME: composer
+  COMPOSER_CONTAINER_BUILD_CONTEXT: container-images/composer
+  COMPOSER_HOME: ${CI_BUILDS_DIR}/composer-home
+  SYLIUS_CONTAINER_IMAGE_NAME: sylius
+  SYLIUS_CONTAINER_BUILD_CONTEXT: "."
+  SYLIUS_CONTAINER_BUILD_FILE: "container-images/sylius/Dockerfile"
+  NODE_IMAGE_NAME: docker.io/node:14.21-alpine3.15
+
+build-composer-image:
+  stage: prepare
+  extends:
+    - .build_container_image
+  variables:
+    CONTAINER_BUILD_CONTEXT: ${COMPOSER_CONTAINER_BUILD_CONTEXT}
+    CONTAINER_IMAGE_NAME: ${COMPOSER_CONTAINER_IMAGE_NAME}
+  rules:
+    - if: $CI_COMMIT_BRANCH == "master"
+    - if: $CI_COMMIT_BRANCH != "master"
+      changes:
+        paths:
+          - container-images/composer/**
+        compare_to: refs/heads/master
+
+install-composer-prod-dependencies:
+  stage: dependencies
+  image: ${CI_REGISTRY_IMAGE}/${COMPOSER_CONTAINER_IMAGE_NAME}:${CI_COMMIT_SHORT_SHA}
+  script:
+    - composer install --download-only --no-dev --no-scripts
+  cache:
+    <<: *composer_deps_prod_cache
+    policy: pull-push
+  rules: !reference [.composer_deps_update_rules, rules]
+
+.node_deps_update_rules:
+  rules:
+    - if: $CI_COMMIT_BRANCH != "master"
+      # TODO: uncomment those lines once master is merged.
+      # changes:
+      #   paths:
+      #     - package.json
+      #     - package-lock.json
+      #   compare_to: refs/heads/master
+    - if: $CI_COMMIT_BRANCH == "master"
+    - if: $CI_COMMIT_TAG != null
+
+.node_deps_cache:
+  cache: &node_deps_cache
+    key: ${CACHE_KEY_PREFIX}-node-deps
+    paths:
+      - node_modules
+      - assets/shop/node_modules
+    policy: pull
+
+install-node-dependencies:
+  stage: dependencies
+  image: ${NODE_IMAGE_NAME}
+  needs: []
+  script:
+    - yarn install
+    - cd assets/shop
+    - yarn install
+  cache:
+    <<: *node_deps_cache
+    policy: pull-push
+  rules: !reference [.node_deps_update_rules, rules]
+
+build-composer-prod:
+  stage: build
+  image: ${CI_REGISTRY_IMAGE}/${COMPOSER_CONTAINER_IMAGE_NAME}:${CI_COMMIT_SHORT_SHA}
+  needs:
+    - install-composer-prod-dependencies
+  variables:
+    CACHE_FALLBACK_KEY: ${DEFAULT_CACHE_KEY_PREFIX}-composer-deps-prod
+  script:
+    - composer install --no-dev --optimize-autoloader --no-scripts
+  cache:
+    <<: *composer_deps_prod_cache
+  artifacts:
+    when: on_success
+    expire_in: "30 days"
+    paths:
+      - vendor
+
+build-node:
+  stage: build
+  image: ${NODE_IMAGE_NAME}
+  variables:
+    GULP_ENV: prod
+  needs:
+    - install-node-dependencies
+    - build-composer-prod
+  script:
+    - yarn build
+    - cd assets/shop
+    - npm run build-theme
+  cache:
+    - <<: *node_deps_cache
+    - <<: *composer_deps_prod_cache
+  artifacts:
+    when: on_success
+    expire_in: "30 days"
+    paths:
+      - public
+
+build-sylius-image:
+  stage: build
+  needs:
+    - build-composer-prod
+    - build-node
+  extends:
+    - .build_container_image
+  variables:
+    CONTAINER_BUILD_FILE: ${SYLIUS_CONTAINER_BUILD_FILE}
+    CONTAINER_BUILD_CONTEXT: ${SYLIUS_CONTAINER_BUILD_CONTEXT}
+    CONTAINER_IMAGE_NAME: ${SYLIUS_CONTAINER_IMAGE_NAME}
